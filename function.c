@@ -116,7 +116,8 @@ void task4()
 {
     int resource_list[3] = {0, 1, 2};
     get_resources(3, resource_list);
-    task_sleep(70);     // using resources
+    // task_sleep(70);     // using resources
+    task_sleep(2);
     release_resources(3, resource_list);
     task_exit();
     while (1);

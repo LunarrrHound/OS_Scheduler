@@ -30,5 +30,8 @@ void deq(Task**, char*);
 void sighandler(int);
 void routine();
 void add_history(Task**, Task**);
+void add_wait(Task**, Task**);
+void pause_process();
+void init_all();
 
 #endif
