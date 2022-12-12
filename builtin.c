@@ -13,6 +13,7 @@
 #include "../include/command.h"
 #include "../include/function.h"
 #include "../include/shell.h"
+#include "../include/resource.h"
 
 int ready_index = 0;
 fun function_list[] = {task1, task2, task3, task4, task5, task6, task7, task8, task9};
@@ -194,6 +195,7 @@ int add(char **args)
 	new_task->past_time = 0;
 	new_task->running_time = 0;
 	new_task->waiting_time = 0;
+	new_task->resource_num = 0;
 	char* task_name = args[1];
 	char* function_name = args[2];
 	strcpy(new_task->name, task_name);
@@ -248,31 +250,54 @@ int ps(char **args)
 		printf("  %d|       %s|   %s|       %d|      %d|          |     %d\n", temp->task_id, temp->name, task_states[temp->state], temp->running_time, temp->waiting_time, temp->priority);
 		temp = temp->next_his;
 	}
-	printf("here\n");
 	return 1;
 }
 
 int start(char **args)
 {
-	struct itimerval ovalue, value;
+	struct itimerval value;
 	signal(SIGVTALRM, sighandler);
+	signal(SIGTSTP, pause_process);
 	value.it_value.tv_sec = 0;
 	value.it_value.tv_usec = 10000;
 	value.it_interval.tv_sec = 0;
 	value.it_interval.tv_usec = 10000; //every 10ms
-	setitimer(ITIMER_VIRTUAL, &value, &ovalue);
-
-	getcontext(&main_process);
+	setitimer(ITIMER_VIRTUAL, &value, NULL);
+	isPause = false;
+	
 	printf("Start simulation\n");
-	while(num_tasks != 0) {
-		if(ready_head != NULL) {
-			ready_head->state = 1;
-			current = ready_head;
-			ready_head = ready_head->next;
-			current->next = NULL;
-			swapcontext(&main_process, &current->uctx);
-		}
+	getcontext(&main_process);
+	// while(num_tasks != 0) {
+	if(num_tasks == 0) {
+		return 1;
 	}
+	if(isPause == true) {
+		return 1;
+	}
+	if(current != NULL) {
+		printf("Task %s is running\n", current->name);
+		setcontext(&current->uctx);
+	}
+	else if(ready_head == NULL) {
+		printf("CPU idle\n");
+		while(1)
+			if(ready_head != NULL) break;
+	}
+	else{
+		// ready_head->state = 1;//RUNNING state
+		current = ready_head;
+		ready_head = ready_head->next;
+		current->next = NULL;
+		current->state = 1;
+		printf("%s num: %d\n",current->name, current->resource_num);
+		
+		printf("Task %s is running\n", current->name);
+		setcontext(&current->uctx);
+	}
+	printf("number of tasks: %d\n", num_tasks);
+	// }
+
+	setcontext(&main_process);
 	ready_head = NULL;
 	waiting_head = NULL;
 	printf("Simulation ended\n");

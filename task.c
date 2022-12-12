@@ -9,22 +9,13 @@
 void task_sleep(int ms)
 {
     Task *cur_t = current;
-    cur_t->state = 2;//WAITING STATE
-    if(waiting_head == NULL) {
-        waiting_head = cur_t;
-    }
-    else{
-        Task *temp = waiting_head;
-        while(temp->next != NULL) {
-            temp = temp->next;
-        }
-        cur_t = temp->next;
-    }
-    cur_t->remain_time = ms;
-    // current = NULL;
-    // current->state = 2;
-    // inq(&waiting_head, &current);
-    swapcontext(&current->uctx, &main_process);
+    current->state = 2;//WAITING STATE
+    current->remain_time = ms;
+    current->next = NULL;
+    inq(&waiting_head, &current);
+    printf("%s goes to sleep\n", cur_t->name);
+    current = NULL;
+    swapcontext(&cur_t->uctx, &main_process);
 }
 
 void task_exit()
