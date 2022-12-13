@@ -1,6 +1,7 @@
 #ifndef BUILTIN_H
 #define BUILTIN_H
 #include <ucontext.h>
+#include <stdbool.h>
 #define DEFAULT_STACK_SIZE 1024*128
 #define MAX_TASK_SIZE 1024
 int help(char **args);
@@ -37,6 +38,10 @@ typedef struct Task{
     int past_time;
     int running_time;
     int waiting_time;
+    int need[8];
+    int resource_num;
+    int RR_past;
+    int turnaround;
     struct Task *next;
     struct Task *next_his;
 }Task;
@@ -46,5 +51,8 @@ struct Task *ready_head;
 struct Task *waiting_head;
 struct Task *current;
 int num_tasks;
+bool isPause;
+bool all_available;
+bool resource_available[8];
 
 #endif

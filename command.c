@@ -5,28 +5,123 @@
 #include <sys/time.h>
 #include <signal.h>
 #include "../include/command.h"
+#include "../include/builtin.h"
+#include "../include/shell.h"
+
+void init_all(){
+	num_tasks = 0;
+	history_count = 0;
+	ready_head = NULL;
+	waiting_head = NULL;
+	current = NULL;
+	history_head = NULL;
+	all_available = true;
+	for(int i = 0; i < 8; i++) {
+		resource_available[i] = true;
+	}
+	return ;
+}
 
 void routine() {
-	Task *temp = waiting_head;
-	
-	if(current->state == 1){
+	Task *temp = waiting_head, *prev = waiting_head;
+	if(current != NULL){
+		// printf("running adding..\n");
+		if(!strcmp(algo, "RR")) {
+			// printf("wtf\n");
+			Task *cur_t = current;
+			cur_t->RR_past += 1;
+			if(cur_t->RR_past == 3) {
+				cur_t->RR_past = 0;
+				cur_t->state = 0;
+				inq(&ready_head, &cur_t);
+				current = NULL;
+				swapcontext(&cur_t->uctx, &main_process);
+			}
+		}
+		else if(!strcmp(algo, "PP")) {
+			if(ready_head != NULL && ready_head->priority < current->priority) {
+				Task *cur_t = current;
+				cur_t->state = 0;//READY
+				inq(&ready_head, &cur_t);
+				current = NULL;
+				swapcontext(&cur_t->uctx, &main_process);
+			}
+		}
 		current->running_time += 1;
 		current->past_time += 1;
+		current->turnaround += 1;
 	}
-	
 	while(temp != NULL) {
+		all_available = true;
 		temp->past_time += 1;
 		temp->waiting_time += 1;
-		if(temp->past_time >= temp->remain_time) {
-			temp->state = 0;
-			temp->past_time = 0;
-			// temp->waiting_time = 0;
-			deq(&waiting_head, temp->name);
-			inq(&ready_head, &temp);
+		printf("%s %d\n", temp->name, temp->turnaround);
+		temp->turnaround += 1;
+		// printf("%s %d\n",temp->name, temp->past_time);
+		if(temp->remain_time == -1) {//waiting for resources
+			for(int i = 0; i < temp->resource_num; i++) {
+				int target = temp->need[i];
+				if(resource_available[target] == false) {
+					all_available = false;
+					break;
+				}
+			}
+			if(all_available == true) { //move from waiting queue to ready queue
+				// printf("all avail\n");
+				if(temp == waiting_head) {
+					waiting_head = temp->next;
+				}
+				else{
+					prev->next = temp->next;
+				}
+				temp->state = 0;
+				temp->next = NULL;
+				inq(&ready_head, &temp);
+			}
 		}
+		else{//waiting for sleep time up
+			if(temp->past_time >= temp->remain_time) {
+				temp->past_time = 0;
+				temp->remain_time = 0;
+				//remove from waiting queue to ready queue
+				if(temp == waiting_head) {
+					waiting_head = temp->next;
+				}else{
+					prev->next = temp->next;
+				}
+				temp->state = 0;
+				temp->next = NULL;
+				inq(&ready_head, &temp);
+			}
+		}
+		prev = temp;
 		temp = temp->next;
 	}
+	Task *red_t = ready_head;
+	while(red_t != NULL) {
+		red_t->turnaround += 1;
+		red_t = red_t->next;
+	}
+	// Task *h_t = history_head;
+	// while(h_t != NULL) {
+	// 	if(h_t->state != 3) {
+	// 		h_t->turnaround += 1;
+	// 	}
+	// 	h_t = h_t->next_his;
+	// }
+	return ;
 } 
+
+void pause_process() {
+	isPause = true;
+	if(current) {
+		swapcontext(&current->uctx, &main_process);
+	}
+	else{
+		setcontext(&main_process);
+	}
+	return ;
+}
 
 void sighandler(int signo) {
 	switch(signo){
@@ -36,6 +131,21 @@ void sighandler(int signo) {
 			routine();
 			break;
 	}
+	return ;
+}
+
+void add_wait(Task **head, Task **node) {
+	Task *temp = (*head);
+	if(temp == NULL) {
+		(*head) = (*node), (*node)->next = NULL;
+	}
+	else{
+		while(temp->next != NULL) {
+			temp = temp->next;
+		}
+		temp->next = (*node);
+	}
+	(*node)->next = NULL;
 	return ;
 }
 
@@ -56,6 +166,7 @@ void add_history(Task **head, Task **node) {
 
 void deq(Task **head, char* name) {
 	Task *temp = (*head), *prev = NULL;
+	
 	if(temp != NULL && !strcmp(temp->name, name)){
 		(*head)->state = 3;
 		(*head) = temp->next;
@@ -68,6 +179,8 @@ void deq(Task **head, char* name) {
 	if(temp == NULL) return ;
 	temp->state = 3;
 	prev->next = temp->next;
+	temp->next = NULL;
+	return ;
 }
 
 void inq(Task **head, Task **node){
