@@ -13,6 +13,7 @@
 #include "../include/command.h"
 #include "../include/function.h"
 #include "../include/shell.h"
+#include "../include/resource.h"
 
 int ready_index = 0;
 fun function_list[] = {task1, task2, task3, task4, task5, task6, task7, task8, task9};
@@ -194,6 +195,8 @@ int add(char **args)
 	new_task->past_time = 0;
 	new_task->running_time = 0;
 	new_task->waiting_time = 0;
+	new_task->resource_num = 0;
+	new_task->turnaround = 0;
 	char* task_name = args[1];
 	char* function_name = args[2];
 	strcpy(new_task->name, task_name);
@@ -233,9 +236,56 @@ int add(char **args)
 
 int del(char **args)
 {
-	deq(&ready_head, args[1]);
-	num_tasks--;
-	printf("Task %s is killed\n", args[1]);
+	// deq(&ready_head, args[1]);
+	// num_tasks--;
+	Task *his_t = history_head;
+	while(his_t != NULL) {
+		if(!strcmp(his_t->name, args[1]) && his_t->state != 3) {
+			int cur_state = his_t->state;
+			if(cur_state == 0) { //del ready
+				his_t->state = 3;
+				if(his_t->resource_num != 0) {
+					for(int i = 0; i < his_t->resource_num; i++) {
+						resource_available[his_t->need[i]] = true;
+						printf("Task %s release resource %d\n", his_t->name, his_t->need[i]);
+					}
+					his_t->resource_num = 0;
+				}
+				deq(&ready_head, args[1]);
+				printf("Task %s is killed\n", his_t->name);
+				num_tasks--;
+			}
+			else if(cur_state == 1) { //del running
+				Task *cur_t = current;
+				cur_t->state = 3;
+				if(cur_t->resource_num != 0) {
+					for(int i = 0; i < cur_t->resource_num; i++) {
+						resource_available[cur_t->need[i]] = true;
+						printf("Task %s release resource %d\n", cur_t->name, cur_t->need[i]);
+					}
+					cur_t->resource_num = 0;
+				}
+				current = NULL;
+				printf("Task %s is killed\n", cur_t->name);
+				num_tasks--;
+			}
+			else if(cur_state == 2) { //del waiting
+				if(his_t->resource_num != 0) {
+					for(int i = 0; i < his_t->resource_num; i++) {
+						resource_available[his_t->need[i]] = true;
+						printf("Task %s release resource %d\n", his_t->name, his_t->need[i]);
+					}
+					his_t->resource_num = 0;
+				}
+				deq(&waiting_head, args[1]);
+				printf("Task %s is killed\n", his_t->name);
+				num_tasks--;
+			}
+		}
+		his_t = his_t->next_his;
+	}
+	
+	// printf("Task %s is killed\n", args[1]);
 	return 1;
 }
 
@@ -245,34 +295,75 @@ int ps(char **args)
 	printf("------------------------------------------------------------------------------\n");
 	Task *temp = history_head;
 	while(temp != NULL) {
-		printf("  %d|       %s|   %s|       %d|      %d|          |     %d\n", temp->task_id, temp->name, task_states[temp->state], temp->running_time, temp->waiting_time, temp->priority);
+		printf("  %d|     %s|    %s|      %d|      %d|        ", temp->task_id, temp->name, task_states[temp->state], temp->running_time, temp->waiting_time);
+		if(temp->state == 3) {
+			printf("%d|  ", temp->turnaround);
+		}
+		else{
+			printf("None|  ");
+		}
+		if(temp->resource_num == 0 || temp->state == 3) {
+			printf("None   ");
+		}else{
+			for(int i = 0; i < temp->resource_num; i++) {
+				printf("%d ", temp->need[i]);
+			}
+		}
+		printf("| ");
+		if(temp->priority == -1) {
+			printf("None\n");
+		}else{
+			printf("%d\n", temp->priority);
+		}
 		temp = temp->next_his;
 	}
-	printf("here\n");
 	return 1;
 }
 
 int start(char **args)
 {
-	struct itimerval ovalue, value;
+	struct itimerval value;
 	signal(SIGVTALRM, sighandler);
+	signal(SIGTSTP, pause_process);
 	value.it_value.tv_sec = 0;
 	value.it_value.tv_usec = 10000;
 	value.it_interval.tv_sec = 0;
 	value.it_interval.tv_usec = 10000; //every 10ms
-	setitimer(ITIMER_VIRTUAL, &value, &ovalue);
-
-	getcontext(&main_process);
+	setitimer(ITIMER_VIRTUAL, &value, NULL);
+	isPause = false;
+	
 	printf("Start simulation\n");
-	while(num_tasks != 0) {
-		if(ready_head != NULL) {
-			ready_head->state = 1;
-			current = ready_head;
-			ready_head = ready_head->next;
-			current->next = NULL;
-			swapcontext(&main_process, &current->uctx);
-		}
+	getcontext(&main_process);
+	// while(num_tasks != 0) {
+	if(num_tasks == 0) {
+		return 1;
 	}
+	if(isPause == true) {
+		return 1;
+	}
+	if(current != NULL) {
+		printf("Task %s is running\n", current->name);
+		setcontext(&current->uctx);
+	}
+	else if(ready_head == NULL) {
+		printf("CPU idle\n");
+		while(1)
+			if(ready_head != NULL) break;
+	}
+	else{
+		// ready_head->state = 1;//RUNNING state
+		current = ready_head;
+		ready_head = ready_head->next;
+		current->next = NULL;
+		current->state = 1;
+		printf("%s num: %d\n",current->name, current->resource_num);
+		
+		printf("Task %s is running\n", current->name);
+		setcontext(&current->uctx);
+	}
+	printf("number of tasks: %d\n", num_tasks);
+	// }
+	setcontext(&main_process);
 	ready_head = NULL;
 	waiting_head = NULL;
 	printf("Simulation ended\n");
