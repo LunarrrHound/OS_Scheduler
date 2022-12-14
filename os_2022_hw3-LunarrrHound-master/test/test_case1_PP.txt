@@ -1,0 +1,166 @@
+Task aaa is ready
+Task bbb is ready
+Task ccc is ready
+Task ddd is ready
+Task eee is ready
+Task fff is ready
+Task ggg is ready
+Task hhh is ready
+Task iii is ready
+Task jjj is ready
+Task kkk is ready
+Task lll is ready
+Task mmm is ready
+Task nnn is ready
+Task ooo is ready
+Task ppp is ready
+Task qqq is ready
+Task rrr is ready
+Task sss is ready
+Task ttt is ready
+Task uuu is ready
+Task vvv is ready
+Task www is ready
+Task xxx is ready
+Task yyy is ready
+Task zzz is ready
+Start simulation
+Task vvv is running
+Task vvv getting resource 0
+Task vvv getting resource 1
+Task vvv getting resource 2
+vvv goes to sleep
+Task aaa is running
+Task aaa done
+Task bbb is running
+Task bbb done
+Task ccc is running
+Task ccc done
+Task ddd is running
+Task ddd done
+Task eee is running
+Task eee done
+Task fff is running
+Task fff done
+Task ggg is running
+Task ggg done
+Task hhh is running
+Task hhh done
+Task iii is running
+Task iii done
+Task www is running
+Task www is waiting for resources
+Task jjj is running
+Task jjj done
+Task kkk is running
+Task kkk done
+Task lll is running
+Task lll done
+Task mmm is running
+Task mmm done
+Task nnn is running
+Task nnn done
+Task ooo is running
+Task ooo done
+Task ppp is running
+Task ppp done
+Task xxx is running
+Task xxx is waiting for resources
+Task yyy is running
+Task yyy is waiting for resources
+Task qqq is running
+Task qqq done
+Task rrr is running
+Task rrr done
+Task sss is running
+Task sss done
+Task zzz is running
+Task zzz is waiting for resources
+Task ttt is running
+Task ttt done
+Task uuu is running
+Task uuu done
+CPU idle
+Task vvv is running
+Task vvv release resource 0
+Task vvv release resource 1
+Task vvv release resource 2
+Task vvv done
+CPU idle
+Task www is running
+Task www getting resource 1
+Task www getting resource 4
+www goes to sleep
+CPU idle
+Task www is running
+Task www getting resource 5
+www goes to sleep
+CPU idle
+Task www is running
+Task www release resource 1
+Task www release resource 4
+Task www release resource 5
+Task www done
+CPU idle
+Task xxx is running
+Task xxx getting resource 2
+Task xxx getting resource 4
+xxx goes to sleep
+CPU idle
+Task xxx is running
+Task xxx release resource 2
+Task xxx release resource 4
+Task xxx done
+CPU idle
+Task yyy is running
+Task yyy getting resource 1
+Task yyy getting resource 3
+Task yyy getting resource 6
+yyy goes to sleep
+CPU idle
+Task zzz is running
+Task zzz getting resource 0
+Task zzz getting resource 4
+Task zzz getting resource 7
+zzz goes to sleep
+CPU idle
+Task zzz is running
+Task zzz release resource 0
+Task zzz release resource 4
+Task zzz release resource 7
+Task zzz done
+CPU idle
+Task yyy is running
+Task yyy release resource 1
+Task yyy release resource 3
+Task yyy release resource 6
+Task yyy done
+Simulation ended
+TID|     name|     state|  runnnig|  waiting| turnaround| resources| priority
+------------------------------------------------------------------------------
+  1|     aaa|    TERMINATED|      6|      0|        6|  None   | 2
+  2|     bbb|    TERMINATED|      7|      0|        13|  None   | 3
+  3|     ccc|    TERMINATED|      7|      0|        20|  None   | 4
+  4|     ddd|    TERMINATED|      6|      0|        26|  None   | 5
+  5|     eee|    TERMINATED|      6|      0|        32|  None   | 6
+  6|     fff|    TERMINATED|      6|      0|        38|  None   | 7
+  7|     ggg|    TERMINATED|      3|      0|        41|  None   | 8
+  8|     hhh|    TERMINATED|      1|      0|        42|  None   | 9
+  9|     iii|    TERMINATED|      0|      0|        42|  None   | 10
+  10|     jjj|    TERMINATED|      0|      0|        42|  None   | 12
+  11|     kkk|    TERMINATED|      0|      0|        42|  None   | 13
+  12|     lll|    TERMINATED|      0|      0|        42|  None   | 14
+  13|     mmm|    TERMINATED|      0|      0|        42|  None   | 15
+  14|     nnn|    TERMINATED|      0|      0|        42|  None   | 16
+  15|     ooo|    TERMINATED|      3|      0|        45|  None   | 17
+  16|     ppp|    TERMINATED|      0|      0|        45|  None   | 18
+  17|     qqq|    TERMINATED|      0|      0|        45|  None   | 21
+  18|     rrr|    TERMINATED|      0|      0|        45|  None   | 22
+  19|     sss|    TERMINATED|      0|      0|        45|  None   | 23
+  20|     ttt|    TERMINATED|      3|      0|        48|  None   | 25
+  21|     uuu|    TERMINATED|      6|      0|        54|  None   | 26
+  22|     vvv|    TERMINATED|      0|      70|        71|  None   | 1
+  23|     www|    TERMINATED|      0|      69|        114|  None   | 11
+  24|     xxx|    TERMINATED|      0|      65|        112|  None   | 19
+  25|     yyy|    TERMINATED|      0|      80|        127|  None   | 20
+  26|     zzz|    TERMINATED|      0|      65|        112|  None   | 24

@@ -1,0 +1,82 @@
+Task aaa is ready
+Task ccc is ready
+Task ddd is ready
+Task eee is ready
+Task fff is ready
+Start simulation
+Task aaa is running
+Task aaa getting resource 0
+Task aaa getting resource 1
+Task aaa getting resource 2
+aaa goes to sleep
+Task ccc is running
+Task ccc is waiting for resources
+Task ddd is running
+Task ddd is waiting for resources
+Task eee is running
+Task eee is waiting for resources
+Task fff is running
+Task fff getting resource 5
+fff goes to sleep
+CPU idle
+Task aaa is running
+Task aaa release resource 0
+Task aaa release resource 1
+Task aaa release resource 2
+Task aaa done
+CPU idle
+Task ccc is running
+Task ccc getting resource 2
+Task ccc getting resource 4
+ccc goes to sleep
+CPU idle
+Task ddd is running
+Task ddd getting resource 1
+Task ddd getting resource 3
+Task ddd getting resource 6
+ddd goes to sleep
+CPU idle
+Task ccc is running
+Task ccc release resource 2
+Task ccc release resource 4
+Task ccc done
+CPU idle
+Task eee is running
+Task eee getting resource 0
+Task eee getting resource 4
+Task eee getting resource 7
+eee goes to sleep
+CPU idle
+Task eee is running
+Task eee release resource 0
+Task eee release resource 4
+Task eee release resource 7
+Task eee done
+CPU idle
+Task fff is running
+Task fff is waiting for resources
+CPU idle
+Task ddd is running
+Task ddd release resource 1
+Task ddd release resource 3
+Task ddd release resource 6
+Task ddd done
+CPU idle
+Task fff is running
+Task fff getting resource 4
+Task fff getting resource 6
+fff goes to sleep
+CPU idle
+Task fff is running
+Task fff release resource 4
+Task fff release resource 5
+Task fff release resource 6
+Task fff done
+Simulation ended
+TID|     name|     state|  runnnig|  waiting| turnaround| resources| priority
+------------------------------------------------------------------------------
+  1|     aaa|    TERMINATED|      0|      70|        71|  None   | None
+  2|     ccc|    TERMINATED|      0|      71|        73|  None   | None
+  3|     ddd|    TERMINATED|      0|      80|        82|  None   | None
+  4|     eee|    TERMINATED|      0|      72|        74|  None   | None
+  5|     fff|    TERMINATED|      0|      120|        123|  None   | None
